@@ -1,1 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xyzz Master - Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        #results::-webkit-scrollbar { display: none; }
+        .video-item { flex: 0 0 200px; height: 350px; }
+        video { object-fit: cover; background: #000; }
+        .active-plat { border-color: #3b82f6; background-color: #1e293b; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-click { transition: all 0.2s ease; }
+        .btn-click:active { transform: scale(0.96); }
+        
+        /* Transición suave para el cambio de color */
+        body { transition: background-color 0.4s ease, color 0.4s ease; }
+        .light-mode { background-color: #ffffff !important; color: #1a1a1a !important; }
+        .light-mode .bg-gray-900, .light-mode .bg-gray-900\/90, .light-mode .bg-gray-900\/40 { background-color: #f3f4f6 !important; border-color: #e5e7eb !important; color: #1a1a1a !important; }
+        .light-mode .bg-gray-800, .light-mode .bg-gray-800\/50 { background-color: #ffffff !important; border-color: #d1d5db !important; color: #1a1a1a !important; }
+        .light-mode .text-gray-400, .light-mode .text-gray-500 { color: #4b5563 !important; }
+    </style>
+</head>
+<body id="body" class="bg-black text-white min-h-screen p-4 flex flex-col items-center no-scrollbar">
+    
+    <button onclick="toggleTheme()" class="fixed top-4 right-4 w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center shadow-lg z-50 btn-click" id="theme-toggle">
+        <i class="fa-solid fa-moon" id="theme-icon"></i>
+    </button>
 
+    <div class="max-w-md w-full bg-gray-900/90 p-6 rounded-[2.5rem] shadow-2xl border border-gray-800 mb-8 mt-12">
+        <h1 class="text-xl font-black text-center mb-6 text-blue-500 italic uppercase tracking-widest">Xyzz Downloader</h1>
+        
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <button onclick="setPlat('youtube')" id="yt-btn" class="plat-btn active-plat p-2 rounded-xl border border-gray-800 flex flex-col items-center transition-all">
+                <i class="fa-brands fa-youtube text-lg text-red-600"></i>
+            </button>
+            <button onclick="setPlat('tiktok')" id="tt-btn" class="plat-btn p-2 rounded-xl border border-gray-800 flex flex-col items-center transition-all">
+                <i class="fa-brands fa-tiktok text-lg text-white" id="tt-icon"></i>
+            </button>
+            <button onclick="setPlat('facebook')" id="fb-btn" class="plat-btn p-2 rounded-xl border border-gray-800 flex flex-col items-center transition-all">
+                <i class="fa-brands fa-facebook text-lg text-blue-600"></i>
+            </button>
+            <button onclick="setPlat('instagram')" id="ig-btn" class="plat-btn p-2 rounded-xl border border-gray-800 flex flex-col items-center transition-all">
+                <i class="fa-brands fa-instagram text-lg text-pink-500"></i>
+            </button>
+        </div>
+
+        <input type="text" id="url" placeholder="Pega el link aquí..." class="w-full p-3 rounded-2xl bg-gray-800/50 border border-gray-700 text-center text-xs outline-none mb-4 focus:border-blue-500/50">
+        
+        <div class="flex gap-2">
+            <button onclick="startDownload()" id="dl-btn" class="flex-[4] bg-blue-600 p-3 rounded-xl font-bold italic btn-click uppercase text-[10px] tracking-wider text-white">
+                Obtener Video
+            </button>
+            <button onclick="resetApp()" class="flex-1 bg-gray-800 p-3 rounded-xl text-gray-400 btn-click border border-gray-700">
+                <i class="fa-solid fa-rotate-right text-xs"></i>
+            </button>
+        </div>
+
+        <div id="player-area" class="mt-6 hidden rounded-2xl overflow-hidden border border-gray-800 bg-black">
+            <video id="vid" controls class="w-full aspect-video"></video>
+            <div class="p-3 flex flex-col gap-2">
+                <button onclick="saveFromBlob()" class="w-full bg-green-600 p-3 rounded-lg font-bold uppercase text-[10px] flex items-center justify-center gap-2 btn-click text-white">
+                    <i class="fa-solid fa-cloud-arrow-down text-sm"></i> Guardar en el dispositivo
+                </button>
+                <button onclick="openExternal()" class="w-full bg-gray-800/50 p-2 rounded-lg font-bold uppercase text-[9px] text-gray-500 btn-click">
+                    <i class="fa-solid fa-link mr-1"></i> Enlace Directo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-md w-full bg-gray-900/40 p-5 rounded-[2rem] border border-gray-800/50 mb-8">
+        <h2 class="text-[9px] font-bold mb-4 flex items-center gap-2 text-gray-500 uppercase tracking-widest">
+            <i class="fa-brands fa-tiktok text-[10px]"></i> TikTok Search
+        </h2>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="search-q" placeholder="Escribe un término Eje: Killua" class="flex-1 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700 text-xs outline-none">
+            <button onclick="doSearch()" class="bg-blue-600 px-4 rounded-lg btn-click text-white"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
+        </div>
+        <div id="results" class="flex gap-3 overflow-x-auto pb-2 no-scrollbar"></div>
+    </div>
+
+    <div class="max-w-md w-full px-6 py-4 text-center">
+        <div class="bg-gray-900/20 p-4 rounded-3xl border border-gray-800/30 mb-6">
+            <p class="text-gray-500 text-[9px] leading-relaxed italic">
+                Si no funciona a la primera, usa <i class="fa-solid fa-rotate-right mx-0.5"></i> e intenta <span class="text-blue-400 font-bold">2 a 3 veces</span>.
+            </p>
+            <div class="mt-3 flex justify-center items-center gap-1 text-[9px] font-bold uppercase">
+                <span class="text-gray-600">Creado por</span>
+                <span class="text-blue-500/70">the-xyzz</span>
+            </div>
+        </div>
+        <p class="text-[8px] text-gray-700 font-bold tracking-[0.4em] uppercase">Made with <i class="fa-solid fa-heart text-red-900/30"></i> by the-xyzz</p>
+    </div>
+
+    <script>
+        let currentPlat = 'youtube';
+        let globalVideoUrl = '';
+
+        function toggleTheme() {
+            const body = document.getElementById('body');
+            const icon = document.getElementById('theme-icon');
+            const ttIcon = document.getElementById('tt-icon');
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                ttIcon.style.color = '#1a1a1a';
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                ttIcon.style.color = '#ffffff';
+            }
+        }
+
+        function setPlat(p) {
+            currentPlat = p;
+            document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active-plat'));
+            document.getElementById(`${p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig'}-btn`).classList.add('active-plat');
+        }
+
+        function resetApp() {
+            document.getElementById('url').value = '';
+            document.getElementById('player-area').classList.add('hidden');
+            document.getElementById('vid').src = '';
+            globalVideoUrl = '';
+            document.getElementById('dl-btn').innerHTML = 'Obtener Video';
+            document.getElementById('dl-btn').disabled = false;
+        }
+
+        async function startDownload() {
+            const url = document.getElementById('url').value;
+            const btn = document.getElementById('dl-btn');
+            if (!url) return;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url, platform: currentPlat })
+                });
+                const d = await res.json();
+                if (d.downloadUrl) {
+                    globalVideoUrl = d.downloadUrl;
+                    document.getElementById('vid').src = `/api/proxy?url=${encodeURIComponent(d.downloadUrl)}`;
+                    document.getElementById('player-area').classList.remove('hidden');
+                } else { alert("Reintenta 2-3 veces más."); }
+            } catch (e) { alert("Error de red."); }
+            btn.innerHTML = 'Obtener Video';
+            btn.disabled = false;
+        }
+
+        function saveFromBlob() {
+            if (!globalVideoUrl) return;
+            window.location.href = `/api/proxy?url=${encodeURIComponent(globalVideoUrl)}`;
+        }
+
+        function openExternal() {
+            if (!globalVideoUrl) return;
+            window.open(globalVideoUrl, '_blank');
+        }
+
+        async function doSearch() {
+            const q = document.getElementById('search-q').value;
+            const grid = document.getElementById('results');
+            if (!q) return;
+            grid.innerHTML = '<i class="fa-solid fa-spinner animate-spin text-blue-500 p-4"></i>';
+            try {
+                const r = await fetch(`/api/search?q=${q}`);
+                const data = await r.json();
+                grid.innerHTML = '';
+                data.forEach(v => {
+                    const vUrl = v.media.no_watermark;
+                    grid.innerHTML += `
+                        <div class="video-item bg-black rounded-2xl overflow-hidden border border-gray-800 flex-shrink-0 relative">
+                            <video class="w-full h-full" controls preload="none" poster="${v.cover}">
+                                <source src="/api/proxy?url=${encodeURIComponent(vUrl)}" type="video/mp4">
+                            </video>
+                            <div class="absolute bottom-2 left-2 right-2">
+                                 <a href="/api/proxy?url=${encodeURIComponent(vUrl)}" class="bg-blue-600/90 text-[8px] py-1.5 rounded-lg font-bold text-center block uppercase text-white">Descargar</a>
+                            </div>
+                        </div>`;
+                });
+            } catch (e) { grid.innerHTML = 'Error'; }
+        }
+    </script>
+</body>
+        </html>
