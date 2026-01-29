@@ -11,57 +11,63 @@
         #results { -ms-overflow-style: none; scrollbar-width: none; }
         
         .video-item {
-            flex: 0 0 220px;
-            height: 400px;
+            flex: 0 0 160px; /* Tamaño más compacto */
+            height: 280px;
         }
         video {
             object-fit: cover;
+            background: #000;
         }
+        .btn-click { transition: all 0.2s ease; }
+        .btn-click:active { transform: scale(0.96); }
     </style>
 </head>
-<body class="bg-black text-white min-h-screen p-4 flex flex-col items-center">
+<body class="bg-[#050505] text-white min-h-screen p-4 flex flex-col items-center font-sans">
     
-    <div class="max-w-md w-full bg-gray-900 p-6 rounded-3xl shadow-2xl border border-gray-800 mb-8">
-        <h1 class="text-2xl font-black text-center mb-6 text-blue-500 italic uppercase tracking-tighter">Xyzz Downloader</h1>
+    <div class="max-w-md w-full bg-[#111] p-5 rounded-[2.5rem] shadow-2xl border border-gray-800/50 mb-6">
+        <h1 class="text-xl font-black text-center mb-5 text-blue-500 italic uppercase tracking-widest">Xyzz Downloader</h1>
         
-        <div class="grid grid-cols-4 gap-2 mb-6">
-            <button onclick="setPlat('youtube')" id="yt-btn" class="plat-btn p-3 rounded-xl border border-blue-500 bg-gray-800 flex flex-col items-center"><i class="fa-brands fa-youtube text-red-600"></i></button>
-            <button onclick="setPlat('tiktok')" id="tt-btn" class="plat-btn p-3 rounded-xl border border-gray-700 flex flex-col items-center"><i class="fa-brands fa-tiktok"></i></button>
-            <button onclick="setPlat('facebook')" id="fb-btn" class="plat-btn p-3 rounded-xl border border-gray-700 flex flex-col items-center"><i class="fa-brands fa-facebook text-blue-600"></i></button>
-            <button onclick="setPlat('instagram')" id="ig-btn" class="plat-btn p-3 rounded-xl border border-gray-700 flex flex-col items-center"><i class="fa-brands fa-instagram text-pink-500"></i></button>
+        <div class="grid grid-cols-4 gap-2 mb-5">
+            <button onclick="setPlat('youtube')" id="yt-btn" class="plat-btn p-2.5 rounded-2xl border border-blue-600/50 bg-blue-600/10 flex flex-col items-center btn-click"><i class="fa-brands fa-youtube text-red-600 text-base"></i></button>
+            <button onclick="setPlat('tiktok')" id="tt-btn" class="plat-btn p-2.5 rounded-2xl border border-gray-800 flex flex-col items-center btn-click"><i class="fa-brands fa-tiktok text-base text-white"></i></button>
+            <button onclick="setPlat('facebook')" id="fb-btn" class="plat-btn p-2.5 rounded-2xl border border-gray-800 flex flex-col items-center btn-click"><i class="fa-brands fa-facebook text-blue-600 text-base"></i></button>
+            <button onclick="setPlat('instagram')" id="ig-btn" class="plat-btn p-2.5 rounded-2xl border border-gray-800 flex flex-col items-center btn-click"><i class="fa-brands fa-instagram text-pink-500 text-base"></i></button>
         </div>
 
-        <input type="text" id="url" placeholder="Pega el link aquí..." class="w-full p-4 rounded-xl bg-gray-800 border border-gray-700 text-center text-sm outline-none mb-4">
-        <button onclick="startDownload()" id="dl-btn" class="w-full bg-blue-600 p-4 rounded-xl font-bold italic">OBTENER VIDEO</button>
+        <input type="text" id="url" placeholder="Pega el link aquí..." class="w-full p-3 rounded-2xl bg-black border border-gray-800 text-center text-[11px] outline-none mb-4 focus:border-blue-500/50 transition-all">
+        <button onclick="startDownload()" id="dl-btn" class="w-full bg-blue-600 p-3.5 rounded-2xl font-bold italic text-[11px] tracking-widest btn-click uppercase">Obtener Video</button>
 
-        <div id="player-area" class="mt-6 hidden bg-black rounded-2xl overflow-hidden border border-gray-700">
+        <div id="player-area" class="mt-5 hidden bg-black rounded-3xl overflow-hidden border border-gray-800">
             <video id="vid" controls class="w-full aspect-video"></video>
-            <button onclick="saveFromBlob()" class="w-full bg-green-600 p-3 font-bold">GUARDAR EN GALERÍA</button>
+            <button onclick="saveFromBlob()" class="w-full bg-green-600 p-3 font-bold text-[10px] tracking-wider btn-click uppercase">Guardar en Galería</button>
         </div>
     </div>
 
-    <div class="max-w-md w-full bg-gray-900/50 p-6 rounded-3xl border border-gray-800 mb-8">
-        <h2 class="text-xs font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase italic">
+    <div class="max-w-md w-full bg-[#111]/40 p-5 rounded-[2rem] border border-gray-800/40 mb-6">
+        <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-500 uppercase tracking-[0.2em] italic px-1">
             <i class="fa-brands fa-tiktok text-white"></i> TikTok Search
         </h2>
         
-        <div class="flex gap-2 mb-6">
-            <input type="text" id="search-q" placeholder="Escribe un término Eje: Killua" class="flex-1 p-3 rounded-xl bg-gray-800 border border-gray-700 text-sm outline-none">
-            <button onclick="doSearch()" class="bg-blue-500 px-4 rounded-xl"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="search-q" placeholder="Eje: Killua..." class="flex-1 p-3 rounded-xl bg-black border border-gray-800 text-[11px] outline-none focus:border-blue-500/30 transition-all">
+            <button onclick="doSearch()" class="bg-blue-600 px-4 rounded-xl btn-click"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
         </div>
 
-        <div id="results" class="flex gap-4 overflow-x-auto pb-4 scroll-smooth"></div>
+        <div id="results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
     </div>
 
     <div class="max-w-md w-full px-2">
-        <div class="bg-gray-900/30 p-5 rounded-2xl border border-gray-800/50 text-center">
-            <h3 class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mb-3">Información de la web</h3>
-            <p class="text-gray-400 text-xs leading-relaxed italic">
-                Si a la primera no descarga, por favor <span class="text-white font-bold">inténtalo de 2 a 3 veces</span>. Algunos servidores pueden tardar en responder al procesar el enlace.
+        <div class="bg-gray-900/20 p-5 rounded-[2rem] border border-gray-800/30 text-center mb-6">
+            <h3 class="text-[9px] font-bold text-blue-500/80 uppercase tracking-[0.3em] mb-3">Información de la web</h3>
+            <p class="text-gray-500 text-[11px] leading-relaxed italic">
+                Si a la primera no descarga, por favor <span class="text-blue-400 font-bold">inténtalo de 2 a 3 veces</span>. Los servidores externos pueden tardar en procesar.
             </p>
-            <div class="mt-4 pt-4 border-t border-gray-800/50">
-                <p class="text-[9px] text-gray-600 font-bold uppercase tracking-widest">Xyzz Master &copy; 2026</p>
-            </div>
+        </div>
+        
+        <div class="text-center py-4">
+            <p class="text-[9px] text-gray-700 font-bold tracking-[0.4em] uppercase">
+                All <a href="https://github.com/the-xyzz" target="_blank" class="text-gray-500 hover:text-blue-500 transition-colors duration-300">the-xyzz</a> | downloads
+            </p>
         </div>
     </div>
 
@@ -70,15 +76,20 @@
 
         function setPlat(p) {
             currentPlat = p;
-            document.querySelectorAll('.plat-btn').forEach(b => b.classList.replace('border-blue-500', 'border-gray-700'));
-            document.getElementById(`${p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig'}-btn`).classList.replace('border-gray-700', 'border-blue-500');
+            document.querySelectorAll('.plat-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'border-blue-600/50', 'bg-blue-600/10');
+                b.classList.add('border-gray-800');
+            });
+            const active = document.getElementById(`${p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig'}-btn`);
+            active.classList.replace('border-gray-800', 'border-blue-600/50');
+            active.classList.add('bg-blue-600/10');
         }
 
         async function startDownload(customUrl) {
             const url = customUrl || document.getElementById('url').value;
             if (!url) return;
             const btn = document.getElementById('dl-btn');
-            btn.innerHTML = "CARGANDO...";
+            btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i>";
             
             try {
                 const res = await fetch('/api/download', {
@@ -92,9 +103,7 @@
                     document.getElementById('player-area').classList.remove('hidden');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
             btn.innerHTML = "OBTENER VIDEO";
         }
 
@@ -102,21 +111,21 @@
             const q = document.getElementById('search-q').value;
             const grid = document.getElementById('results');
             if (!q) return;
-            grid.innerHTML = '<div class="text-xs text-gray-500">Buscando...</div>';
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 uppercase tracking-widest p-4">Buscando...</div>';
             const r = await fetch(`/api/search?q=${q}`);
             const data = await r.json();
             grid.innerHTML = '';
             data.forEach(v => {
                 const videoUrl = v.media.no_watermark;
                 grid.innerHTML += `
-                    <div class="video-item bg-black rounded-2xl overflow-hidden border border-gray-800 flex-shrink-0 flex flex-col relative">
+                    <div class="video-item bg-black rounded-3xl overflow-hidden border border-gray-800 flex-shrink-0 flex flex-col relative shadow-lg">
                         <video class="w-full h-full" controls preload="none" poster="${v.cover}">
                             <source src="${videoUrl}" type="video/mp4">
                         </video>
-                        <div class="absolute bottom-2 left-2 right-2 flex flex-col gap-2">
+                        <div class="absolute bottom-2 left-2 right-2">
                              <a href="/api/proxy?url=${encodeURIComponent(videoUrl)}" 
-                                class="bg-blue-600 text-[10px] py-2 rounded-lg font-bold text-center flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-download"></i> DESCARGAR
+                                class="bg-blue-600 text-[9px] py-1.5 rounded-xl font-bold text-center block uppercase text-white shadow-xl btn-click">
+                                Descargar
                              </a>
                         </div>
                     </div>`;
@@ -128,7 +137,7 @@
             if (!videoSrc) return;
             const a = document.createElement('a');
             a.href = `/api/proxy?url=${encodeURIComponent(videoSrc)}`;
-            a.download = "video.mp4";
+            a.download = "video_xyzz.mp4";
             a.click();
         }
     </script>
