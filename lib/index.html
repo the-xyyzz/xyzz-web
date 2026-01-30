@@ -14,15 +14,13 @@
             background-color: #0b1426; 
         }
 
-        #results::-webkit-scrollbar { display: none; }
-        #results { -ms-overflow-style: none; scrollbar-width: none; }
+        #results::-webkit-scrollbar, #pin-results::-webkit-scrollbar { display: none; }
+        #results, #pin-results { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .video-item {
-            flex: 0 0 160px;
-            height: 280px;
-        }
+        .video-item { flex: 0 0 160px; height: 280px; }
+        .pin-item { flex: 0 0 140px; height: 200px; }
 
-        video { object-fit: cover; }
+        video, img { object-fit: cover; }
 
         .neon-accent { color: #5ce1b6; } 
         .bg-card { background-color: #16243d; } 
@@ -86,26 +84,37 @@
         <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
             <i class="fa-brands fa-tiktok text-white"></i> TikTok Search
         </h2>
-        
         <div class="flex gap-2 mb-4">
-            <input type="text" id="search-q" placeholder="Eje: Killua..." 
+            <input type="text" id="search-q" placeholder="Eje: Anime edit..." 
                 class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
             <button onclick="doSearch()" class="btn-neon px-4 rounded-xl btn-click">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
             </button>
         </div>
-
         <div id="results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
+    </div>
+
+    <div class="max-w-md w-full bg-card/40 p-5 rounded-[2.5rem] border border-white/5 mb-6">
+        <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
+            <i class="fa-brands fa-pinterest text-red-500"></i> Pinterest Search
+        </h2>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="pin-q" placeholder="Eje: Goku 4k..." 
+                class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
+            <button onclick="doPinSearch()" class="btn-neon px-4 rounded-xl btn-click">
+                <i class="fa-solid fa-image text-xs"></i>
+            </button>
+        </div>
+        <div id="pin-results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
     </div>
 
     <div class="max-w-md w-full px-2 text-center">
         <div class="bg-card/20 p-5 rounded-[2rem] border border-white/5 mb-6">
             <h3 class="text-[9px] font-bold neon-accent uppercase tracking-widest mb-2">Información</h3>
             <p class="text-gray-400 text-[10px] leading-relaxed italic">
-                Si la descarga no inicia, <span class="text-white font-bold">intenta 2 o 3 veces</span>. Los servidores externos pueden tardar en procesar.
+                Si la descarga no inicia, <span class="text-white font-bold">intenta 2 o 3 veces</span>.
             </p>
         </div>
-        
         <div class="py-4">
             <p class="text-[9px] text-gray-500 font-bold tracking-[0.4em] uppercase">
                 All <a href="https://github.com/the-xyzz" target="_blank" class="text-white hover:neon-accent transition-colors duration-300">the-xyzz</a> | downloads
@@ -128,8 +137,8 @@
             active.classList.add('bg-neon/10');
         }
 
-        async function startDownload(customUrl) {
-            const url = customUrl || document.getElementById('url').value;
+        async function startDownload() {
+            const url = document.getElementById('url').value;
             if (!url) return;
             const btn = document.getElementById('dl-btn');
             const originalText = btn.innerHTML;
@@ -139,7 +148,7 @@
                 const res = await fetch('/api/download', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ url, platform: customUrl ? 'tiktok' : currentPlat })
+                    body: JSON.stringify({ url, platform: currentPlat })
                 });
                 const d = await res.json();
                 if (d.downloadUrl) {
@@ -155,40 +164,48 @@
             const q = document.getElementById('search-q').value;
             const grid = document.getElementById('results');
             if (!q) return;
-            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 tracking-tighter uppercase">Buscando...</div>';
-            
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
             try {
                 const r = await fetch(`/api/search?q=${q}`);
                 const data = await r.json();
                 grid.innerHTML = '';
                 data.forEach(v => {
-                    const videoUrl = v.media.no_watermark;
                     grid.innerHTML += `
-                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 flex flex-col relative group shadow-lg">
+                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative">
                             <video class="w-full h-full" controls preload="none" poster="${v.cover}">
-                                <source src="${videoUrl}" type="video/mp4">
+                                <source src="${v.media.no_watermark}" type="video/mp4">
                             </video>
-                            <div class="absolute bottom-2 left-2 right-2">
-                                 <a href="/api/proxy?url=${encodeURIComponent(videoUrl)}" 
-                                    class="btn-neon text-[8px] py-2 rounded-xl font-black text-center block uppercase shadow-2xl btn-click">
-                                    Descargar
-                                 </a>
+                        </div>`;
+                });
+            } catch (e) { grid.innerHTML = 'Error'; }
+        }
+
+        async function doPinSearch() {
+            const q = document.getElementById('pin-q').value;
+            const grid = document.getElementById('pin-results');
+            if (!q) return;
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
+            try {
+                const r = await fetch(`/api/search/pinterest?q=${q}`);
+                const data = await r.json();
+                grid.innerHTML = '';
+                data.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="pin-item bg-[#0b1426] rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
+                            <img src="${p.image}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                                <a href="${p.image}" target="_blank" class="btn-neon text-[8px] py-1 rounded-lg text-center font-bold uppercase">Ver HD</a>
                             </div>
                         </div>`;
                 });
-            } catch (e) { 
-                grid.innerHTML = '<div class="text-[10px] text-red-900 p-4 uppercase italic">Error al buscar</div>';
-            }
+            } catch (e) { grid.innerHTML = 'Error'; }
         }
 
         function saveFromBlob() {
             const videoSrc = document.getElementById('vid').src;
             if (!videoSrc) return;
-            const a = document.createElement('a');
-            a.href = `/api/proxy?url=${encodeURIComponent(videoSrc)}`;
-            a.download = "video_xyzz.mp4";
-            a.click();
+            window.open(`/api/proxy?url=${encodeURIComponent(videoSrc)}`, '_blank');
         }
     </script>
 </body>
-    </html>
+            </html>
