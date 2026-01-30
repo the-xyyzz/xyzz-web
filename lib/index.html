@@ -172,7 +172,7 @@
                 grid.innerHTML = '';
                 data.forEach(v => {
                     grid.innerHTML += `
-                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
+                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative group shadow-lg">
                             <video class="w-full h-full" controls preload="none" poster="${v.cover}">
                                 <source src="${v.media.no_watermark}" type="video/mp4">
                             </video>
@@ -191,11 +191,13 @@
                 const data = await r.json();
                 grid.innerHTML = '';
                 data.forEach(p => {
+                    // Usamos el proxy para forzar la descarga de la imagen
+                    const downloadUrl = `/api/proxy?url=${encodeURIComponent(p.image)}`;
                     grid.innerHTML += `
                         <div class="pin-item bg-[#0b1426] rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
                             <img src="${p.image}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                                <a href="${p.image}" target="_blank" download="image_xyzz.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-black text-center block uppercase shadow-2xl btn-click">
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                                <a href="${downloadUrl}" download="pinterest_xyzz.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-bold text-center block uppercase btn-click">
                                     Descargar
                                 </a>
                             </div>
@@ -207,8 +209,12 @@
         function saveFromBlob() {
             const videoSrc = document.getElementById('vid').src;
             if (!videoSrc) return;
-            window.open(`/api/proxy?url=${encodeURIComponent(videoSrc)}`, '_blank');
+            const downloadUrl = `/api/proxy?url=${encodeURIComponent(videoSrc)}`;
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = "video_xyzz.mp4";
+            a.click();
         }
     </script>
 </body>
-</html>
+            </html>
