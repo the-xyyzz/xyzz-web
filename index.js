@@ -59,12 +59,24 @@ app.post('/api/download', async (req, res) => {
     } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
+// Buscador de TikTok (Videos)
 app.get('/api/search', async (req, res) => {
     const { q } = req.query;
     try {
         const response = await axios.get(`${BASE_URL}/search/tiktok?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
         res.json(response.data.result || []);
     } catch (e) { res.status(500).json({ error: 'Error' }); }
+});
+
+app.get('/api/search/pinterest', async (req, res) => {
+    const { q } = req.query;
+    try {
+        const response = await axios.get(`${BASE_URL}/search/pinterest?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
+        
+        res.json(response.data.result || []);
+    } catch (e) { 
+        res.status(500).json({ error: 'Error en búsqueda de Pinterest' }); 
+    }
 });
 
 module.exports = app;
