@@ -11,7 +11,6 @@ app.use(express.static(path.join(__dirname, 'lib')));
 const API_KEY = 'sylphy-a6a203';
 const BASE_URL = 'https://sylphy.xyz';
 
-// Proxy optimizado para Instagram y Facebook
 app.get('/api/proxy', async (req, res) => {
     const { url } = req.query;
     if (!url) return res.status(400).send('URL faltante');
