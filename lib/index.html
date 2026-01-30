@@ -85,7 +85,7 @@
             <i class="fa-brands fa-tiktok text-white"></i> TikTok Search
         </h2>
         <div class="flex gap-2 mb-4">
-            <input type="text" id="search-q" placeholder="Eje: Anime edit..." 
+            <input type="text" id="search-q" placeholder="Eje: Killua..." 
                 class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
             <button onclick="doSearch()" class="btn-neon px-4 rounded-xl btn-click">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -108,14 +108,15 @@
         <div id="pin-results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
     </div>
 
-    <div class="max-w-md w-full px-2 text-center">
-        <div class="bg-card/20 p-5 rounded-[2rem] border border-white/5 mb-6">
+    <div class="max-w-md w-full px-2">
+        <div class="bg-card/20 p-5 rounded-[2rem] border border-white/5 text-center mb-6">
             <h3 class="text-[9px] font-bold neon-accent uppercase tracking-widest mb-2">Información</h3>
             <p class="text-gray-400 text-[10px] leading-relaxed italic">
-                Si la descarga no inicia, <span class="text-white font-bold">intenta 2 o 3 veces</span>.
+                Si la descarga no inicia, <span class="text-white font-bold">intenta 2 o 3 veces</span>. Los servidores pueden tardar en procesar el video.
             </p>
         </div>
-        <div class="py-4">
+        
+        <div class="text-center py-4">
             <p class="text-[9px] text-gray-500 font-bold tracking-[0.4em] uppercase">
                 All <a href="https://github.com/the-xyzz" target="_blank" class="text-white hover:neon-accent transition-colors duration-300">the-xyzz</a> | downloads
             </p>
@@ -171,7 +172,7 @@
                 grid.innerHTML = '';
                 data.forEach(v => {
                     grid.innerHTML += `
-                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative">
+                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
                             <video class="w-full h-full" controls preload="none" poster="${v.cover}">
                                 <source src="${v.media.no_watermark}" type="video/mp4">
                             </video>
@@ -194,7 +195,9 @@
                         <div class="pin-item bg-[#0b1426] rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
                             <img src="${p.image}" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                                <a href="${p.image}" target="_blank" class="btn-neon text-[8px] py-1 rounded-lg text-center font-bold uppercase">Ver HD</a>
+                                <a href="${p.image}" target="_blank" download="image_xyzz.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-black text-center block uppercase shadow-2xl btn-click">
+                                    Descargar
+                                </a>
                             </div>
                         </div>`;
                 });
@@ -208,4 +211,4 @@
         }
     </script>
 </body>
-            </html>
+</html>
