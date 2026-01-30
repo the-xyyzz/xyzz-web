@@ -3,219 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xyzz Downloads</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Xyzz AI | Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif;
-            background-color: #0b1426; 
+        :root {
+            --bg: #0a0a0a;
+            --sidebar-bg: #121212;
+            --accent: #10a37f;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f0f0f0;
         }
 
-        #results::-webkit-scrollbar, #pin-results::-webkit-scrollbar { display: none; }
-        #results, #pin-results { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .video-item { flex: 0 0 160px; height: 280px; }
-        .pin-item { flex: 0 0 140px; height: 200px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); overflow: hidden; display: flex; }
 
-        video, img { object-fit: cover; }
+        /* MENU HAMBURGUESA MEJORADO */
+        #sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .neon-accent { color: #5ce1b6; } 
-        .bg-card { background-color: #16243d; } 
-        .border-neon { border-color: #5ce1b6; }
-        .btn-neon { background-color: #5ce1b6; color: #0b1426; }
-        
-        .btn-click { transition: all 0.2s ease; }
-        .btn-click:active { transform: scale(0.96); }
+        #sidebar.open { left: 0; box-shadow: 20px 0 50px rgba(0,0,0,0.5); }
 
-        .plat-btn i { transition: transform 0.2s; }
-        .plat-btn:hover i { transform: scale(1.1); }
+        /* Overlay para cerrar al hacer clic fuera */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+        #overlay.active { display: block; }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            cursor: pointer;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .menu-toggle span { width: 22px; height: 2px; background: white; transition: 0.3s; }
+
+        /* CONTENIDO */
+        #main-content { flex: 1; height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+        #chat-container {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            padding: 100px 20px 180px 20px;
+        }
+
+        .chat-wrapper { max-width: 800px; margin: 0 auto; }
+
+        /* MENSAJES */
+        .msg-row { margin-bottom: 35px; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .msg-user { 
+            background: #2f2f2f; 
+            padding: 14px 22px; 
+            border-radius: 20px 20px 4px 20px;
+            max-width: 85%;
+            margin-left: auto;
+            border: 1px solid var(--border);
+        }
+
+        .msg-ai { display: flex; gap: 18px; width: 100%; align-items: flex-start; }
+        .ai-icon-box { 
+            min-width: 38px; height: 38px; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center;
+            background: white; padding: 6px;
+        }
+        .ai-text { line-height: 1.7; font-size: 15.5px; padding-top: 4px; }
+
+        /* BURBUJA FLOTANTE */
+        .input-floating-zone {
+            position: fixed;
+            bottom: 45px;
+            width: 90%;
+            max-width: 780px;
+            z-index: 100;
+        }
+
+        .input-bubble {
+            background: rgba(28, 28, 28, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .ai-select-custom {
+            background: #333;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 18px;
+            outline: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            margin-right: 12px;
+        }
+
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            padding: 12px;
+        }
+
+        .btn-send {
+            background: var(--accent);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        /* BLOQUES DE CÓDIGO */
+        pre {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .copy-tag {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: #ccc; 
+            padding: 5px 12px; font-size: 11px; border-radius: 6px; cursor: pointer;
+        }
     </style>
 </head>
-<body class="text-white min-h-screen p-4 flex flex-col items-center">
+<body>
 
-    <div class="flex flex-col items-center mb-6 mt-4">
-        <div class="bg-card p-3 rounded-2xl border border-white/5 mb-2 shadow-lg">
-            <i class="fa-solid fa-cloud-arrow-down text-4xl neon-accent"></i>
-        </div>
-        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">Premium Downloader</p>
+    <div id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="menu-toggle" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
     </div>
-    
-    <div class="max-w-md w-full bg-card p-6 rounded-[2.5rem] shadow-2xl border border-white/5 mb-6">
-        <div class="flex flex-col items-center mb-6">
-            <i class="fa-solid fa-download text-xl neon-accent mb-2"></i>
-            <h1 class="text-xl font-extrabold text-center neon-accent italic uppercase tracking-[0.2em]">Xyzz Downloader</h1>
-        </div>
-        
-        <div class="grid grid-cols-4 gap-2 mb-6">
-            <button onclick="setPlat('youtube')" id="yt-btn" class="plat-btn p-3 rounded-2xl border border-neon bg-[#0b1426] flex flex-col items-center btn-click">
-                <i class="fa-brands fa-youtube text-red-500 text-lg"></i>
-            </button>
-            <button onclick="setPlat('tiktok')" id="tt-btn" class="plat-btn p-3 rounded-2xl border border-white/10 bg-[#0b1426] flex flex-col items-center btn-click">
-                <i class="fa-brands fa-tiktok text-lg text-white"></i>
-            </button>
-            <button onclick="setPlat('facebook')" id="fb-btn" class="plat-btn p-3 rounded-2xl border border-white/10 bg-[#0b1426] flex flex-col items-center btn-click">
-                <i class="fa-brands fa-facebook text-blue-500 text-lg"></i>
-            </button>
-            <button onclick="setPlat('instagram')" id="ig-btn" class="plat-btn p-3 rounded-2xl border border-white/10 bg-[#0b1426] flex flex-col items-center btn-click">
-                <i class="fa-brands fa-instagram text-pink-500 text-lg"></i>
-            </button>
-        </div>
 
-        <input type="text" id="url" placeholder="Pega el enlace aquí..." 
-            class="w-full p-3.5 rounded-2xl bg-[#0b1426] border border-white/10 text-center text-[10px] outline-none mb-4 focus:border-neon/50 transition-all">
-        
-        <button onclick="startDownload()" id="dl-btn" 
-            class="w-full btn-neon p-3.5 rounded-2xl font-black italic text-[11px] tracking-widest btn-click uppercase flex items-center justify-center gap-2">
-            <i class="fa-solid fa-cloud"></i> Obtener Video
+    <aside id="sidebar">
+        <h2 style="margin: 40px 0 30px 0; font-weight: 700; color: var(--accent);">Xyzz AI</h2>
+        <button onclick="newChat()" style="background: white; color: black; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%;">
+            + Nuevo Chat
         </button>
+        <div style="margin-top: auto; padding-bottom: 20px; font-size: 12px; opacity: 0.3; text-align: center;">
+            Versión Pro 2026
+        </div>
+    </aside>
 
-        <div id="player-area" class="mt-6 hidden bg-black rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
-            <video id="vid" controls class="w-full aspect-video"></video>
-            <button onclick="saveFromBlob()" class="w-full bg-white/10 p-3 font-bold text-[10px] uppercase btn-click tracking-tighter">
-                <i class="fa-solid fa-download mr-1"></i> Guardar en Galería
-            </button>
+    <main id="main-content">
+        <div id="chat-container">
+            <div class="chat-wrapper" id="chat-flow">
+                <div style="text-align: center; margin-top: 15vh;" id="empty-state">
+                    <h1 style="font-size: 3.5rem; letter-spacing: -2px; margin-bottom: 15px;">Xyzz AI</h1>
+                    <p style="opacity: 0.4; font-size: 1.1rem;">Tu asistente inteligente multimodelo.</p>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="max-w-md w-full bg-card/40 p-5 rounded-[2.5rem] border border-white/5 mb-6">
-        <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
-            <i class="fa-brands fa-tiktok text-white"></i> TikTok Search
-        </h2>
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="search-q" placeholder="Eje: Killua..." 
-                class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
-            <button onclick="doSearch()" class="btn-neon px-4 rounded-xl btn-click">
-                <i class="fa-solid fa-magnifying-glass text-xs"></i>
-            </button>
+        <div class="input-floating-zone">
+            <div class="input-bubble">
+                <select id="model-select" class="ai-select-custom">
+                    <option value="chatgpt">ChatGPT</option>
+                    <option value="gemini">Gemini</option>
+                </select>
+                <input type="text" id="user-input" placeholder="Escribe un término..." autocomplete="off">
+                <button class="btn-send" onclick="handleAction()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
         </div>
-        <div id="results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
-    </div>
-
-    <div class="max-w-md w-full bg-card/40 p-5 rounded-[2.5rem] border border-white/5 mb-10">
-        <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
-            <i class="fa-brands fa-pinterest text-red-500"></i> Pinterest Search
-        </h2>
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="pin-q" placeholder="Eje: Goku 4k..." 
-                class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
-            <button onclick="doPinSearch()" class="btn-neon px-4 rounded-xl btn-click">
-                <i class="fa-solid fa-image text-xs"></i>
-            </button>
-        </div>
-        <div id="pin-results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
-    </div>
-
-    <div class="max-w-md w-full px-2 mt-12">
-        <div class="bg-card/20 p-5 rounded-[2rem] border border-white/5 text-center mb-6">
-            <h3 class="text-[9px] font-bold neon-accent uppercase tracking-widest mb-2">Información</h3>
-            <p class="text-gray-400 text-[10px] leading-relaxed italic">
-                Si la descarga no inicia, <span class="text-white font-bold">intenta 2 o 3 veces</span>. Los servidores pueden tardar en procesar el video.
-            </p>
-        </div>
-        
-        <div class="text-center py-6">
-            <p class="text-[9px] text-gray-500 font-bold tracking-[0.4em] uppercase">
-                All <a href="https://github.com/the-xyzz" target="_blank" class="text-white hover:neon-accent transition-colors duration-300">the-xyzz</a> | downloads
-            </p>
-            <p class="text-[8px] text-gray-700 mt-2 font-bold uppercase tracking-widest">
-                Copyright Xyzz Downloads 2025 © 2026
-            </p>
-        </div>
-    </div>
+    </main>
 
     <script>
-        let currentPlat = 'youtube';
+        const LOGOS = {
+            chatgpt: `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5153-4.9066 6.0462 6.0462 0 0 0-4.4471-3.1243 6.086 6.086 0 0 0-5.1864 1.2501 6.059 6.059 0 0 0-2.4398-1.5783 6.097 6.097 0 0 0-5.0458.2941 6.052 6.052 0 0 0-3.0046 4.5323 6.086 6.086 0 0 0 1.1477 5.1321 5.9847 5.9847 0 0 0 .5153 4.9066 6.0462 6.0462 0 0 0 4.4471 3.1243 6.086 6.086 0 0 0 5.1864-1.2501 6.059 6.059 0 0 0 2.4398 1.5783 6.097 6.097 0 0 0 5.0458-.2941 6.052 6.052 0 0 0 3.0046-4.5323 6.086 6.086 0 0 0-1.1477-5.1321zm-10.2819 10.3644a4.341 4.341 0 0 1-2.221-.6113l.0811-.0462 4.0933-2.3597a.8037.8037 0 0 0 .4018-.6954v-5.8347l1.6541.9545a.046.046 0 0 1 .0227.0357v4.6644a4.3516 4.3516 0 0 1-4.032 3.8927zm-7.6152-2.1264a4.341 4.341 0 0 1-.4134-2.2618l.0811.0462 4.0933 2.3597a.8037.8037 0 0 0 .8037 0l5.0534-2.9157v1.9089a.046.046 0 0 1-.0143.0396l-4.0398 2.3323a4.3516 4.3516 0 0 1-5.564-1.5092zm-2.0006-7.8596a4.341 4.341 0 0 1 1.8076-1.6505l-.0004.0924v4.719a.8037.8037 0 0 0 .4018.6954l5.0534 2.9157-1.6541.9545a.046.046 0 0 1-.0406.0028l-4.0398-2.3323a4.3516 4.3516 0 0 1-1.5279-5.3963z" fill="#10a37f"/></svg>`,
+            gemini: `<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 24c-.2 0-.3-.1-.4-.3-1.3-4.1-4.6-7.4-8.7-8.7-.3-.1-.3-.4 0-.5 4.1-1.3 7.4-4.6 8.7-8.7.1-.3.4-.3.5 0 1.3 4.1 4.6 7.4 8.7 8.7.3.1.3.4 0 .5-4.1 1.3-7.4 4.6-8.7 8.7-.1.2-.2.3-.4.3z" fill="#4285F4"/></svg>`
+        };
 
-        function setPlat(p) {
-            currentPlat = p;
-            document.querySelectorAll('.plat-btn').forEach(b => {
-                b.classList.remove('border-neon', 'bg-neon/10');
-                b.classList.add('border-white/10');
-            });
-            const active = document.getElementById(`${p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig'}-btn`);
-            active.classList.replace('border-white/10', 'border-neon');
-            active.classList.add('bg-neon/10');
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('active');
         }
 
-        async function startDownload() {
-            const url = document.getElementById('url').value;
-            if (!url) return;
-            const btn = document.getElementById('dl-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i>";
+        function newChat() {
+            document.getElementById('chat-flow').innerHTML = '<div style="text-align: center; margin-top: 15vh;" id="empty-state"><h1>Xyzz AI</h1><p>Nuevo chat listo.</p></div>';
+            toggleMenu();
+        }
+
+        async function handleAction() {
+            const input = document.getElementById('user-input');
+            const flow = document.getElementById('chat-flow');
+            const model = document.getElementById('model-select').value;
+            const text = input.value.trim();
+            if(!text) return;
+
+            if(document.getElementById('empty-state')) document.getElementById('empty-state').remove();
+
+            // Mensaje Usuario
+            flow.innerHTML += `<div class="msg-row"><div class="msg-user">${text}</div></div>`;
+            input.value = '';
+
+            // Marcador de IA con Logo
+            const aiId = 'ai-' + Date.now();
+            flow.innerHTML += `
+                <div class="msg-row msg-ai">
+                    <div class="ai-icon-box">${LOGOS[model]}</div>
+                    <div class="ai-text" id="${aiId}">Escribiendo...</div>
+                </div>`;
             
+            scrollChat();
+
             try {
-                const res = await fetch('/api/download', {
+                const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ url, platform: currentPlat })
+                    body: JSON.stringify({ message: text, model })
                 });
-                const d = await res.json();
-                if (d.downloadUrl) {
-                    document.getElementById('vid').src = d.downloadUrl;
-                    document.getElementById('player-area').classList.remove('hidden');
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                }
-            } catch (e) { console.error(e); }
-            btn.innerHTML = originalText;
+                const data = await res.json();
+                document.getElementById(aiId).innerHTML = format(data.text);
+            } catch (e) {
+                document.getElementById(aiId).innerText = "Error al conectar.";
+            }
+            scrollChat();
         }
 
-        async function doSearch() {
-            const q = document.getElementById('search-q').value;
-            const grid = document.getElementById('results');
-            if (!q) return;
-            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
-            try {
-                const r = await fetch(`/api/search?q=${q}`);
-                const data = await r.json();
-                grid.innerHTML = '';
-                data.forEach(v => {
-                    grid.innerHTML += `
-                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative group shadow-lg">
-                            <video class="w-full h-full" controls preload="none" poster="${v.cover}">
-                                <source src="${v.media.no_watermark}" type="video/mp4">
-                            </video>
-                        </div>`;
-                });
-            } catch (e) { grid.innerHTML = 'Error'; }
+        function format(t) {
+            return t.replace(/```([\s\S]*?)```/g, (m, code) => {
+                return `<pre><span class="copy-tag" onclick="copy(this)">Copiar</span><code>${code.trim()}</code></pre>`;
+            });
         }
 
-        async function doPinSearch() {
-            const q = document.getElementById('pin-q').value;
-            const grid = document.getElementById('pin-results');
-            if (!q) return;
-            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
-            try {
-                const r = await fetch(`/api/search/pinterest?q=${q}`);
-                const data = await r.json();
-                grid.innerHTML = '';
-                data.forEach(p => {
-                    const downloadUrl = `/api/proxy?url=${encodeURIComponent(p.image)}`;
-                    grid.innerHTML += `
-                        <div class="pin-item bg-[#0b1426] rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
-                            <img src="${p.image}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                                <a href="${downloadUrl}" download="pinterest_xyzz.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-bold text-center block uppercase btn-click">
-                                    Descargar
-                                </a>
-                            </div>
-                        </div>`;
-                });
-            } catch (e) { grid.innerHTML = 'Error'; }
+        function copy(btn) {
+            const code = btn.nextElementSibling.innerText;
+            navigator.clipboard.writeText(code);
+            btn.innerText = "¡Copiado!";
+            setTimeout(() => btn.innerText = "Copiar", 2000);
         }
 
-        function saveFromBlob() {
-            const videoSrc = document.getElementById('vid').src;
-            if (!videoSrc) return;
-            const downloadUrl = `/api/proxy?url=${encodeURIComponent(videoSrc)}`;
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = "video_xyzz.mp4";
-            a.click();
+        function scrollChat() {
+            const c = document.getElementById('chat-container');
+            c.scrollTop = c.scrollHeight;
         }
+
+        document.getElementById('user-input').onkeypress = (e) => { if(e.key === 'Enter') handleAction(); };
     </script>
 </body>
-                </html>
+    </html>
