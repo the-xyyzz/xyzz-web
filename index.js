@@ -24,7 +24,6 @@ app.get('/api/proxy', async (req, res) => {
                 'Referer': 'https://www.instagram.com/'
             }
         });
-        
         const contentType = url.toLowerCase().includes('.jpg') || url.toLowerCase().includes('.jpeg') || url.toLowerCase().includes('.png') 
             ? 'image/jpeg' 
             : 'video/mp4';
@@ -77,9 +76,7 @@ app.get('/api/search/pinterest', async (req, res) => {
     try {
         const response = await axios.get(`${BASE_URL}/search/pinterest?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
         res.json(response.data.result || []);
-    } catch (e) { 
-        res.status(500).json({ error: 'Error en búsqueda de Pinterest' }); 
-    }
+    } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
 app.get('/api/search/spotify', async (req, res) => {
@@ -87,9 +84,7 @@ app.get('/api/search/spotify', async (req, res) => {
     try {
         const response = await axios.get(`${BASE_URL}/search/spotify?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
         res.json(response.data.result || []);
-    } catch (e) {
-        res.status(500).json({ error: 'Error en búsqueda de Spotify' });
-    }
+    } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
 module.exports = app;
