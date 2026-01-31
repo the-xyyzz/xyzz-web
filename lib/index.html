@@ -12,13 +12,15 @@
         body { 
             font-family: 'Inter', sans-serif;
             background-color: #0b1426; 
+            padding-bottom: 100px; /* Espacio para el reproductor */
         }
 
-        #results::-webkit-scrollbar, #pin-results::-webkit-scrollbar { display: none; }
-        #results, #pin-results { -ms-overflow-style: none; scrollbar-width: none; }
+        #results::-webkit-scrollbar, #pin-results::-webkit-scrollbar, #sp-results::-webkit-scrollbar { display: none; }
+        #results, #pin-results, #sp-results { -ms-overflow-style: none; scrollbar-width: none; }
         
         .video-item { flex: 0 0 160px; height: 280px; }
         .pin-item { flex: 0 0 140px; height: 200px; }
+        .track-item { flex: 0 0 130px; }
 
         video, img { object-fit: cover; }
 
@@ -32,6 +34,22 @@
 
         .plat-btn i { transition: transform 0.2s; }
         .plat-btn:hover i { transform: scale(1.1); }
+
+        #music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(22, 36, 61, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(92, 225, 182, 0.3);
+            border-radius: 2rem;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body class="text-white min-h-screen p-4 flex flex-col items-center">
@@ -82,6 +100,20 @@
 
     <div class="max-w-md w-full bg-card/40 p-5 rounded-[2.5rem] border border-white/5 mb-6">
         <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
+            <i class="fa-brands fa-spotify text-[#1DB954]"></i> Spotify Search
+        </h2>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="sp-q" placeholder="Buscar canción..." 
+                class="flex-1 p-3 rounded-xl bg-[#0b1426] border border-white/10 text-[10px] outline-none focus:border-neon/30">
+            <button onclick="doSpotifySearch()" class="btn-neon px-4 rounded-xl btn-click">
+                <i class="fa-solid fa-music text-xs"></i>
+            </button>
+        </div>
+        <div id="sp-results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
+    </div>
+
+    <div class="max-w-md w-full bg-card/40 p-5 rounded-[2.5rem] border border-white/5 mb-6">
+        <h2 class="text-[10px] font-bold mb-4 flex items-center gap-2 text-gray-400 uppercase tracking-widest italic px-1">
             <i class="fa-brands fa-tiktok text-white"></i> TikTok Search
         </h2>
         <div class="flex gap-2 mb-4">
@@ -108,6 +140,26 @@
         <div id="pin-results" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth"></div>
     </div>
 
+    <div id="music-player" class="p-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-black rounded-lg overflow-hidden border border-white/10">
+                <img id="p-img" src="" class="w-full h-full">
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 id="p-name" class="text-[10px] font-bold truncate neon-accent">Song</h4>
+                <p id="p-artist" class="text-[9px] text-gray-400 truncate">Artist</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="seekAudio(-10)" class="text-white/50"><i class="fa-solid fa-backward"></i></button>
+                <button onclick="togglePlay()" id="play-pause" class="bg-neon/20 p-2.5 rounded-full text-neon border border-neon/20">
+                    <i class="fa-solid fa-pause text-xs"></i>
+                </button>
+                <button onclick="seekAudio(10)" class="text-white/50"><i class="fa-solid fa-forward"></i></button>
+            </div>
+        </div>
+        <audio id="audio-el" onended="onTrackEnd()"></audio>
+    </div>
+
     <div class="max-w-md w-full px-2 mt-12">
         <div class="bg-card/20 p-5 rounded-[2rem] border border-white/5 text-center mb-6">
             <h3 class="text-[9px] font-bold neon-accent uppercase tracking-widest mb-2">Información</h3>
@@ -128,6 +180,7 @@
 
     <script>
         let currentPlat = 'youtube';
+        const audio = document.getElementById('audio-el');
 
         function setPlat(p) {
             currentPlat = p;
@@ -135,18 +188,62 @@
                 b.classList.remove('border-neon', 'bg-neon/10');
                 b.classList.add('border-white/10');
             });
-            const active = document.getElementById(`${p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig'}-btn`);
-            active.classList.replace('border-white/10', 'border-neon');
-            active.classList.add('bg-neon/10');
+            const id = p === 'youtube' ? 'yt' : p === 'tiktok' ? 'tt' : p === 'facebook' ? 'fb' : 'ig';
+            document.getElementById(`${id}-btn`).classList.replace('border-white/10', 'border-neon');
         }
 
+        
+        async function doSpotifySearch() {
+            const q = document.getElementById('sp-q').value;
+            const grid = document.getElementById('sp-results');
+            if(!q) return;
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4">Buscando...</div>';
+            try {
+                const r = await fetch(`/api/search/spotify?q=${encodeURIComponent(q)}`);
+                const data = await r.json();
+                grid.innerHTML = '';
+                data.forEach(t => {
+                    const cover = "https://www.scdn.co/mirror/static/images/apple-touch-icon.png";
+                    grid.innerHTML += `
+                        <div class="track-item bg-card p-3 rounded-2xl border border-white/5 flex-shrink-0 btn-click" 
+                             onclick="playTrack('${t.url}', '${t.name.replace(/'/g, "")}', '${t.artists.replace(/'/g, "")}', '${cover}')">
+                            <div class="w-full aspect-square bg-black/40 rounded-xl mb-2 flex items-center justify-center overflow-hidden">
+                                <img src="${cover}" class="w-full h-full opacity-60">
+                                <i class="fa-solid fa-play text-neon absolute"></i>
+                            </div>
+                            <h4 class="text-[9px] font-bold truncate">${t.name}</h4>
+                            <p class="text-[8px] text-gray-500 truncate">${t.artists}</p>
+                        </div>`;
+                });
+            } catch(e) { grid.innerHTML = 'Error'; }
+        }
+
+        function playTrack(url, name, artist, img) {
+            document.getElementById('music-player').style.display = 'block';
+            document.getElementById('p-name').innerText = name;
+            document.getElementById('p-artist').innerText = artist;
+            document.getElementById('p-img').src = img;
+            audio.src = url;
+            audio.play();
+            document.getElementById('play-pause').innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('play-pause');
+            if (audio.paused) { audio.play(); btn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>'; }
+            else { audio.pause(); btn.innerHTML = '<i class="fa-solid fa-play text-xs"></i>'; }
+        }
+
+        function seekAudio(s) { audio.currentTime += s; }
+        function onTrackEnd() { document.getElementById('play-pause').innerHTML = '<i class="fa-solid fa-play text-xs"></i>'; }
+
+        
         async function startDownload() {
             const url = document.getElementById('url').value;
             if (!url) return;
             const btn = document.getElementById('dl-btn');
-            const originalText = btn.innerHTML;
+            const original = btn.innerHTML;
             btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i>";
-            
             try {
                 const res = await fetch('/api/download', {
                     method: 'POST',
@@ -160,21 +257,21 @@
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 }
             } catch (e) { console.error(e); }
-            btn.innerHTML = originalText;
+            btn.innerHTML = original;
         }
 
         async function doSearch() {
             const q = document.getElementById('search-q').value;
             const grid = document.getElementById('results');
             if (!q) return;
-            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4">...</div>';
             try {
                 const r = await fetch(`/api/search?q=${q}`);
                 const data = await r.json();
                 grid.innerHTML = '';
                 data.forEach(v => {
                     grid.innerHTML += `
-                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative group shadow-lg">
+                        <div class="video-item bg-black rounded-[2rem] overflow-hidden border border-white/5 flex-shrink-0 relative">
                             <video class="w-full h-full" controls preload="none" poster="${v.cover}">
                                 <source src="${v.media.no_watermark}" type="video/mp4">
                             </video>
@@ -187,20 +284,18 @@
             const q = document.getElementById('pin-q').value;
             const grid = document.getElementById('pin-results');
             if (!q) return;
-            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4 uppercase">Buscando...</div>';
+            grid.innerHTML = '<div class="text-[10px] text-gray-600 p-4">...</div>';
             try {
                 const r = await fetch(`/api/search/pinterest?q=${q}`);
                 const data = await r.json();
                 grid.innerHTML = '';
                 data.forEach(p => {
-                    const downloadUrl = `/api/proxy?url=${encodeURIComponent(p.image)}`;
+                    const dlUrl = `/api/proxy?url=${encodeURIComponent(p.image)}`;
                     grid.innerHTML += `
                         <div class="pin-item bg-[#0b1426] rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 relative group">
                             <img src="${p.image}" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                                <a href="${downloadUrl}" download="pinterest_xyzz.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-bold text-center block uppercase btn-click">
-                                    Descargar
-                                </a>
+                                <a href="${dlUrl}" download="image.jpg" class="btn-neon text-[8px] py-1.5 rounded-xl font-bold text-center block uppercase">Descargar</a>
                             </div>
                         </div>`;
                 });
@@ -208,14 +303,9 @@
         }
 
         function saveFromBlob() {
-            const videoSrc = document.getElementById('vid').src;
-            if (!videoSrc) return;
-            const downloadUrl = `/api/proxy?url=${encodeURIComponent(videoSrc)}`;
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = "video_xyzz.mp4";
-            a.click();
+            const src = document.getElementById('vid').src;
+            if (src) window.open(`/api/proxy?url=${encodeURIComponent(src)}`, '_blank');
         }
     </script>
 </body>
-</html>
+                </html>
