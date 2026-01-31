@@ -192,7 +192,7 @@
             document.getElementById(`${id}-btn`).classList.replace('border-white/10', 'border-neon');
         }
 
-        
+        // Spotify Logic
         async function doSpotifySearch() {
             const q = document.getElementById('sp-q').value;
             const grid = document.getElementById('sp-results');
@@ -237,7 +237,7 @@
         function seekAudio(s) { audio.currentTime += s; }
         function onTrackEnd() { document.getElementById('play-pause').innerHTML = '<i class="fa-solid fa-play text-xs"></i>'; }
 
-        
+        // Rest of functions (Downloads, TikTok, Pin)
         async function startDownload() {
             const url = document.getElementById('url').value;
             if (!url) return;
@@ -308,4 +308,4 @@
         }
     </script>
 </body>
-                </html>
+            </html>
