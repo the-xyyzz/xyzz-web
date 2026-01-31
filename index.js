@@ -24,7 +24,12 @@ app.get('/api/proxy', async (req, res) => {
                 'Referer': 'https://www.instagram.com/'
             }
         });
-        res.setHeader('Content-Type', 'video/mp4');
+        
+        const contentType = url.toLowerCase().includes('.jpg') || url.toLowerCase().includes('.jpeg') || url.toLowerCase().includes('.png') 
+            ? 'image/jpeg' 
+            : 'video/mp4';
+            
+        res.setHeader('Content-Type', contentType);
         response.data.pipe(res);
     } catch (e) { res.status(500).send('Error en el túnel'); }
 });
@@ -59,7 +64,6 @@ app.post('/api/download', async (req, res) => {
     } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
-// Buscador de TikTok (Videos)
 app.get('/api/search', async (req, res) => {
     const { q } = req.query;
     try {
@@ -72,10 +76,19 @@ app.get('/api/search/pinterest', async (req, res) => {
     const { q } = req.query;
     try {
         const response = await axios.get(`${BASE_URL}/search/pinterest?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
-        
         res.json(response.data.result || []);
     } catch (e) { 
         res.status(500).json({ error: 'Error en búsqueda de Pinterest' }); 
+    }
+});
+
+app.get('/api/search/spotify', async (req, res) => {
+    const { q } = req.query;
+    try {
+        const response = await axios.get(`${BASE_URL}/search/spotify?q=${encodeURIComponent(q)}&api_key=${API_KEY}`);
+        res.json(response.data.result || []);
+    } catch (e) {
+        res.status(500).json({ error: 'Error en búsqueda de Spotify' });
     }
 });
 
